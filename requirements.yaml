@@ -1,0 +1,63 @@
+# Edit this file with your requirements, then run:  .venv/bin/python agent.py
+# Leave a field empty (or delete it) if you don't care about it.
+
+# plain = fixed rules, no API key needed (uses `rules` below)
+# ai    = Claude agent, needs ANTHROPIC_API_KEY (uses must_have / nice_to_have below)
+engine: plain
+
+search:
+  postcode: "CB2 3DS"       # used for AutoTrader distance search
+  radius_miles: national     # a number of miles, or "national" for the whole UK
+  make: Toyota
+  model: Yaris
+  price_min:
+  price_max: 8500            # £
+  year_min: 2014
+  year_max:
+  mileage_max: 80000
+  fuel_type: Hybrid           # Petrol | Diesel | Hybrid | Plug-in hybrid | Electric
+  transmission: Automatic     # Automatic | Manual
+  body_type:                  # e.g. Hatchback, SUV, Estate (AutoTrader only)
+
+# Rules for the plain engine. Delete a line to switch that check off.
+rules:
+  must:                        # a car that fails any of these is rejected
+    no_write_off: true         # no Cat S / N / C / D
+    valid_mot: true
+    no_serious_mot_failures_years: 2   # no major/dangerous MOT failures in this many years
+    consistent_mileage: true   # mileage never goes down between MOTs
+  nice:                        # shown in the report, doesn't reject a car
+    max_owners: 2
+    full_service_history: true
+    dealer_with_warranty: true
+  # A car with a check that couldn't be verified (e.g. AutoTrader hides the plate, so
+  # there's no MOT report): true = keep it and mark the check ❓, false = reject it.
+  allow_unverified: true
+
+# Plain-English requirements for the ai engine. Claude checks every candidate against these.
+must_have:
+  - Never written off (no Cat S / Cat N / Cat C / Cat D)
+  - Valid MOT with no failures for serious issues in the last 2 years
+  - Mileage history is consistent (no rollback)
+
+nice_to_have:
+  - 2 or fewer previous owners
+  - Full service history
+  - Sold by a dealer with a warranty
+
+# Maximum number of cars in the final shortlist, and how to order it
+# (the plain engine always orders by price, lowest first)
+shortlist_size: 3
+shortlist_order: price, lowest first
+
+# Max free vehicle reports to run per search (Car Owl), to be polite to the site
+max_reports: 8
+
+# The agent can ONLY access these sites (and their subdomains).
+# Add a domain here to let the agent read pages from it with its fetch_page tool.
+allowed_sites:
+  - autotrader.co.uk
+  - atcdn.co.uk               # AutoTrader's photo server (used to read number plates from photos)
+  - toyota.co.uk
+  - toyota-europe.com         # API behind Toyota UK's approved-used search
+  - carowl.co.uk              # free vehicle report: MOT history, mileage, tax, export status
